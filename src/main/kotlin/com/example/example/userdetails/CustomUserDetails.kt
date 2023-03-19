@@ -12,15 +12,15 @@ data class CustomUserDetails(
         return if(user == null)
             mutableListOf(SimpleGrantedAuthority("NO_ROLE"))
         else
-            mutableListOf(SimpleGrantedAuthority("USER"))
+            mutableListOf(SimpleGrantedAuthority("ROLE_USER"))
     }
 
     override fun getPassword(): String {
-        return this.user.password ?: ""
+        return this.user?.password ?: ""
     }
 
     override fun getUsername(): String {
-        return this.user.username ?: ""
+        return this.user?.username ?: ""
     }
 
     override fun isAccountNonExpired(): Boolean {
