@@ -5,11 +5,12 @@ import com.example.example.userdetails.CustomUserDetails
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.stereotype.Component
 
+@Component
 class MongoDetailsService(
-
     @Autowired
-    val userRepository: IUserRepository
+    private val userRepository: IUserRepository
 ) : UserDetailsService {
 
     override fun loadUserByUsername(username: String?): UserDetails {
