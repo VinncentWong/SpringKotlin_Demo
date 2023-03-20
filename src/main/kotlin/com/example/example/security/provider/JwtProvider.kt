@@ -15,7 +15,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 
-@Component
 class JwtProvider(
     @Autowired
     private val mongoDetailsService: MongoDetailsService
