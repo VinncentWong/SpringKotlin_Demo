@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
 object ResponseUtil{
-    fun sendResponse(status: Int, message: String, success: Boolean, datas: Any): ResponseEntity<Response>{
+    fun sendResponse(status: Int, message: String, success: Boolean, datas: Any?): ResponseEntity<Response>{
         val data = mapOf(
             "success" to success,
             "message" to message,
