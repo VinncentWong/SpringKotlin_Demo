@@ -11,6 +11,7 @@ data class User(
     var kontakWhatsapp: String?,
     var kontakLine: String?,
     var kontakInstagram: String?,
+    var username: String?,
     var createdAt: Date,
     var updatedAt: Date,
     var idLike: String?,
