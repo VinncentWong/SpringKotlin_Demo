@@ -1,6 +1,7 @@
 package com.example.example.security.provider
 
 import com.example.example.security.authentication.JwtAuthentication
+import com.example.example.util.JwtUtil
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -14,24 +15,22 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
+import java.security.Key
 
 class JwtProvider(
     @Autowired
     private val mongoDetailsService: MongoDetailsService
 ) : AuthenticationProvider{
-
-    @Value("SECRET_KEY")
-    var secretKey: String? = null
-
+    private val secretKey: Key = JwtUtil.secretKey
     override fun authenticate(authentication: Authentication?): Authentication {
         val token = authentication?.principal as? String
         val result = try{
             token?.let {
                 val parser = Jwts.parserBuilder()
                     .base64UrlDecodeWith(Decoders.BASE64)
-                    .setSigningKey(Decoders.BASE64.decode(secretKey))
+                    .setSigningKey(secretKey)
                     .build()
-                val result = parser.parse(secretKey)
+                val result = parser.parse(token)
                 val claims = result.body as? Claims
                 claims?.let {
                     c ->
