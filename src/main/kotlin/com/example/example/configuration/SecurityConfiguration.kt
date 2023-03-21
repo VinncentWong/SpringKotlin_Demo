@@ -4,23 +4,32 @@ import com.example.example.security.filter.JwtFilter
 import com.example.example.security.manager.JwtManager
 import com.example.example.security.provider.JwtProvider
 import com.example.example.security.provider.MongoDetailsService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.servlet.HandlerExceptionResolver
 
 @Configuration
+@EnableWebSecurity
 class SecurityConfiguration(
     @Autowired
-    private val mongoDetailsService: MongoDetailsService
+    private val mongoDetailsService: MongoDetailsService,
+
+    @Qualifier("handlerExceptionResolver")
+    private val resolver: HandlerExceptionResolver
 ){
 
+    val log: Logger = LoggerFactory.getLogger(SecurityConfiguration::class.java)
     @Bean
-    fun securityConfiguration(http: HttpSecurity): SecurityFilterChain{
+    fun securityConfigurationMethod(http: HttpSecurity): SecurityFilterChain{
         return http
             .csrf().disable()
             .formLogin().disable()
@@ -37,17 +46,17 @@ class SecurityConfiguration(
             }
             .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests {
-                it.requestMatchers("/**/login", "/**/register")
+                it.requestMatchers("/user/login", "/user/create")
                     .permitAll()
-                    .anyRequest()
-                    .authenticated()
+                    .requestMatchers("/user/**")
+                    .hasRole("USER")
             }
             .build()
     }
 
     @Bean
     fun jwtFilter(): JwtFilter{
-        return JwtFilter(jwtManager())
+        return JwtFilter(jwtManager(), resolver)
     }
 
     @Bean
