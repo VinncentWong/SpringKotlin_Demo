@@ -1,6 +1,6 @@
 package com.example.example.security.provider
 
-import com.example.example.app.user.IUserRepository
+import com.example.example.app.user.repository.IUserRepository
 import com.example.example.userdetails.CustomUserDetails
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
