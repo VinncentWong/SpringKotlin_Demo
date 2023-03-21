@@ -3,17 +3,13 @@ package com.example.example.security.authentication
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 
-class JwtAuthentication(
+class NotAuthenticatedJwt(
     principal: String?,
     credential: String?,
-    authorities: List<GrantedAuthority>?
-) : UsernamePasswordAuthenticationToken(principal, credential, authorities) {
+) : UsernamePasswordAuthenticationToken(principal, credential) {}
 
-    init{
-        if(authorities == null){
-            super.setAuthenticated(false)
-        } else {
-            super.setAuthenticated(true)
-        }
-    }
-}
+class AuthenticatedJwt(
+    principal: String?,
+    credential: String?,
+    authorities: List<GrantedAuthority>
+) : UsernamePasswordAuthenticationToken(principal, credential, authorities){}
