@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import java.security.Key
+import java.util.UUID
 
 object JwtUtil {
 
@@ -16,6 +17,7 @@ object JwtUtil {
         claims["username"] = data["username"]
         claims["email"] = data["email"]
         claims["id"] = data["id"]
+        claims["token-unique"] = UUID.randomUUID()
         return Jwts.builder()
             .addClaims(claims)
             .signWith(secretKey)
