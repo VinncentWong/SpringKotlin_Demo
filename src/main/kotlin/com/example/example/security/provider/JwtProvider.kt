@@ -1,6 +1,7 @@
 package com.example.example.security.provider
 
-import com.example.example.security.authentication.JwtAuthentication
+import com.example.example.security.authentication.AuthenticatedJwt
+import com.example.example.security.authentication.NotAuthenticatedJwt
 import com.example.example.util.JwtUtil
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
@@ -8,6 +9,8 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.SignatureException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationProvider
@@ -27,41 +30,39 @@ class JwtProvider(
         val result = try{
             token?.let {
                 val parser = Jwts.parserBuilder()
-                    .base64UrlDecodeWith(Decoders.BASE64)
                     .setSigningKey(secretKey)
                     .build()
-                val result = parser.parse(token)
+                val result = parser.parseClaimsJws(it)
                 val claims = result.body as? Claims
                 claims?.let {
                     c ->
                     val id = c["id"] as? String
                     val userdetails = this.mongoDetailsService.loadUserByUsername(id)
                     if(userdetails.username.isBlank() || userdetails.username.isEmpty()){
-                        JwtAuthentication("user not authenticated in database", null, null)
+                        NotAuthenticatedJwt("user not authenticated in database", null)
                     } else {
                         val authorities = ArrayList<GrantedAuthority>()
                         userdetails.authorities.forEach {
                             authorities.add(it)
                         }
-                        JwtAuthentication(it, id, authorities)
+                        AuthenticatedJwt(it, id, authorities)
                     }
                 }
             }
-            JwtAuthentication("token not exist", null, null)
         }
         catch(ex: MalformedJwtException){
-            JwtAuthentication("jwt was malformed", null, null)
+            NotAuthenticatedJwt("token was malformed", null)
         }
         catch(ex: ExpiredJwtException){
-            JwtAuthentication("token was expired", null, null)
+            NotAuthenticatedJwt("token was expired", null)
         }
         catch(ex: SignatureException){
-            JwtAuthentication("wrong signature, are you sure your signature is valid?", null, null)
+            NotAuthenticatedJwt("token signature was invalid", null)
         }
         catch(ex: IllegalArgumentException){
-            JwtAuthentication("wrong argument type, please do some cross check", null, null)
+            NotAuthenticatedJwt(ex.message, null)
         }
-        return result
+        return result!!
     }
 
     override fun supports(authentication: Class<*>?): Boolean {
